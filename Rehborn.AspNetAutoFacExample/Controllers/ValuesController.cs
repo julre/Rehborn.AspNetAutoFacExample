@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Microsoft.Extensions.Logging;
 using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Controllers
@@ -11,15 +12,18 @@ namespace Rehborn.AspNetAutoFacExample.Controllers
     public class ValuesController : ApiController
     {
         private readonly IValuesRepository _valuesRepository;
+        private readonly ILogger<ValuesController> _logger;
 
-        public ValuesController(IValuesRepository valuesRepository)
+        public ValuesController(IValuesRepository valuesRepository, ILogger<ValuesController> logger)
         {
             _valuesRepository = valuesRepository;
+            _logger = logger;
         }
 
         // GET api/values
         public IEnumerable<Value> Get()
         {
+            _logger.LogTrace("TestMessage");
             return _valuesRepository.GetAll();
             //return new string[] { "value1", "value2" };
         }
