@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Rehborn.AspNetAutoFacExample.Domain;
 using Rehborn.AspNetAutoFacExample.Infrastructure;
+using Serilog;
 
 namespace Rehborn.AspNetAutoFacExample
 {
@@ -18,7 +23,24 @@ namespace Rehborn.AspNetAutoFacExample
     {
         protected void Application_Start()
         {
+            var logger = new LoggerConfiguration()
+                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log")
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
+            Log.Logger = logger;
+
+            var services = new ServiceCollection();
+            services.AddLogging(options =>
+            {
+                options.ClearProviders();
+                options.AddSerilog();
+            });
+
             var builder = new ContainerBuilder();
+
+            //Add .NET Core DI
+            builder.Populate(services);
 
             // Register your MVC controllers. (MvcApplication is the name of
             // the class in Global.asax.)
