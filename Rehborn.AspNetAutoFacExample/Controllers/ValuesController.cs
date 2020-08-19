@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Controllers
@@ -13,18 +14,22 @@ namespace Rehborn.AspNetAutoFacExample.Controllers
     {
         private readonly IValuesRepository _valuesRepository;
         private readonly ILogger<ValuesController> _logger;
+        private readonly MyTestConfig _myTestConfig;
 
-        public ValuesController(IValuesRepository valuesRepository, ILogger<ValuesController> logger)
+        public ValuesController(IValuesRepository valuesRepository, ILogger<ValuesController> logger, IOptionsMonitor<MyTestConfig> myTestConfig)
         {
             _valuesRepository = valuesRepository;
             _logger = logger;
+            _myTestConfig = myTestConfig.CurrentValue;
         }
 
         // GET api/values
         public IEnumerable<Value> Get()
         {
             _logger.LogInformation("{method} called", nameof(Get));
-            return _valuesRepository.GetAll();
+            var values = _valuesRepository.GetAll().ToList();
+            values.Add(Value.Create(_myTestConfig.MyTestValue.ToString()));
+            return values;
         }
 
         // GET api/values/5

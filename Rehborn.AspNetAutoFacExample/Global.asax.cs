@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Web;
@@ -11,11 +12,13 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Rehborn.AspNetAutoFacExample.Domain;
 using Rehborn.AspNetAutoFacExample.Infrastructure;
 using Serilog;
+using Serilog.Core;
 
 namespace Rehborn.AspNetAutoFacExample
 {
@@ -23,20 +26,28 @@ namespace Rehborn.AspNetAutoFacExample
     {
         protected void Application_Start()
         {
-            var logger = new LoggerConfiguration()
-                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log")
-                .Enrich.FromLogContext()
-                .CreateLogger();
+            var config = GetConfiguration();
+
+            var logger = CreateSerilogLogger();
 
             Log.Logger = logger;
 
-            var services = new ServiceCollection();
-            services.AddLogging(options =>
-            {
-                options.ClearProviders();
-                options.AddSerilog();
-            });
+            var services = GetServiceCollection(config);
 
+            var container = BuildAutofacContainer(services);
+
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+            GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver((IContainer)container); //Set the WebApi DependencyResolver
+
+            AreaRegistration.RegisterAllAreas();
+            GlobalConfiguration.Configure(WebApiConfig.Register);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        private static IContainer BuildAutofacContainer(ServiceCollection services)
+        {
             var builder = new ContainerBuilder();
 
             //Add .NET Core DI
@@ -71,15 +82,43 @@ namespace Rehborn.AspNetAutoFacExample
 
             // Set the dependency resolver to be Autofac.
             var container = builder.Build();
+            return container;
+        }
 
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
-            GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver((IContainer)container); //Set the WebApi DependencyResolver
+        private static ServiceCollection GetServiceCollection(IConfiguration config)
+        {
+            var services = new ServiceCollection();
+            services.AddLogging(options =>
+            {
+                options.ClearProviders();
+                options.AddSerilog();
+            });
 
-            AreaRegistration.RegisterAllAreas();
-            GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
+            services.AddOptions();
+            services.Configure<MyTestConfig>(config.GetSection(nameof(MyTestConfig)));
+            return services;
+        }
+
+        private static Logger CreateSerilogLogger()
+        {
+            var configuration = new LoggerConfiguration()
+                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log")
+                .Enrich.FromLogContext();
+            return configuration.CreateLogger();
+        }
+
+        private static IConfiguration GetConfiguration()
+        {
+            // AppDomain only work in .NET Framework and not .NET (Core)
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(basePath)
+                //.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+
+            var config = builder.Build();
+            return config;
         }
     }
 }
