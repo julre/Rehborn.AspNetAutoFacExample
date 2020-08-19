@@ -4,15 +4,24 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Controllers
 {
     public class ValuesController : ApiController
     {
-        // GET api/values
-        public IEnumerable<string> Get()
+        private readonly IValuesRepository _valuesRepository;
+
+        public ValuesController(IValuesRepository valuesRepository)
         {
-            return new string[] { "value1", "value2" };
+            _valuesRepository = valuesRepository;
+        }
+
+        // GET api/values
+        public IEnumerable<Value> Get()
+        {
+            return _valuesRepository.GetAll();
+            //return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5
