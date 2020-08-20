@@ -3,35 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Rehborn.AspNetAutoFacExample.Application.Values.Queries;
 using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Controllers
 {
     public class ValuesController : ApiController
     {
-        private readonly IValuesRepository _valuesRepository;
-        private readonly ILogger<ValuesController> _logger;
-        private readonly MyTestConfig _myTestConfig;
+        private readonly IMediator _mediator;
 
-        public ValuesController(IValuesRepository valuesRepository, ILogger<ValuesController> logger, IOptionsMonitor<MyTestConfig> myTestConfig)
+        public ValuesController(IMediator mediator)
         {
-            _valuesRepository = valuesRepository;
-            _logger = logger;
-            _myTestConfig = myTestConfig.CurrentValue;
+            _mediator = mediator;
         }
 
         // GET api/values
-        public IEnumerable<Value> Get()
+        public async Task<IEnumerable<Value>> Get([FromUri]GetAllValuesQuery request)
         {
-            
-            var values = _valuesRepository.GetAll().ToList();
-            var additionalValue = Value.Create(_myTestConfig.MyTestValue.ToString());
-            _logger.LogInformation("Additional Value is: {@additionalValue} ", additionalValue);
-            values.Add(additionalValue);
-            return values;
+            return await _mediator.Send(request);
         }
 
         // GET api/values/5

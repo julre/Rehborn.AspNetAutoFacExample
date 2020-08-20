@@ -12,6 +12,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -71,13 +72,35 @@ namespace Rehborn.AspNetAutoFacExample
             // OPTIONAL: Enable property injection into action filters.
             builder.RegisterFilterProvider();
 
+            // OPTIONAL: Enable action method parameter injection (RARE).
+            //builder.InjectActionInvoker();
 
+
+            // Out custom repository.
             builder.RegisterType<ValuesRepository>()
                 .As<IValuesRepository>()
                 .InstancePerLifetimeScope();
 
-            // OPTIONAL: Enable action method parameter injection (RARE).
-            //builder.InjectActionInvoker();
+            // Adding MediatR
+            // Mediator itself
+            builder
+                .RegisterType<Mediator>()
+                .As<IMediator>()
+                .InstancePerLifetimeScope();
+
+            // request & notification handlers
+            builder.Register<ServiceFactory>(context =>
+            {
+                var c = context.Resolve<IComponentContext>();
+                return t => c.Resolve(t);
+            });
+
+            // finally register our custom code (individually, or via assembly scanning)
+            // - requests & handlers as transient, i.e. InstancePerDependency()
+            // - pre/post-processors as scoped/per-request, i.e. InstancePerLifetimeScope()
+            // - behaviors as transient, i.e. InstancePerDependency()
+                        builder.RegisterAssemblyTypes(typeof(WebApiApplication).GetTypeInfo().Assembly).AsImplementedInterfaces(); // via assembly scan
+            //builder.RegisterType<MyHandler>().AsImplementedInterfaces().InstancePerDependency();          // or individually
 
 
             // Set the dependency resolver to be Autofac.
