@@ -102,8 +102,13 @@ namespace Rehborn.AspNetAutoFacExample
         private static Logger CreateSerilogLogger()
         {
             var configuration = new LoggerConfiguration()
+                .MinimumLevel.Debug()
                 .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log")
-                .Enrich.FromLogContext();
+                .Enrich.FromLogContext()
+                .Enrich.WithWebApiRouteTemplate()
+                .Enrich.WithWebApiActionName()
+                .Enrich.WithWebApiRouteData()
+                .Enrich.WithWebApiControllerName();
             return configuration.CreateLogger();
         }
 

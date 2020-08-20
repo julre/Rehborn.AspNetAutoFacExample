@@ -26,9 +26,11 @@ namespace Rehborn.AspNetAutoFacExample.Controllers
         // GET api/values
         public IEnumerable<Value> Get()
         {
-            _logger.LogInformation("{method} called", nameof(Get));
+            
             var values = _valuesRepository.GetAll().ToList();
-            values.Add(Value.Create(_myTestConfig.MyTestValue.ToString()));
+            var additionalValue = Value.Create(_myTestConfig.MyTestValue.ToString());
+            _logger.LogInformation("Additional Value is: {@additionalValue} ", additionalValue);
+            values.Add(additionalValue);
             return values;
         }
 
