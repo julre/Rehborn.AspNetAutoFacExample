@@ -12,6 +12,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -119,6 +120,9 @@ namespace Rehborn.AspNetAutoFacExample
 
             services.AddOptions();
             services.Configure<MyTestConfig>(config.GetSection(nameof(MyTestConfig)));
+
+            services.AddAutoMapper(typeof(WebApiApplication));
+
             return services;
         }
 
