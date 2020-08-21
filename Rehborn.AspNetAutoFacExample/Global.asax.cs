@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -100,7 +96,7 @@ namespace Rehborn.AspNetAutoFacExample
             // - requests & handlers as transient, i.e. InstancePerDependency()
             // - pre/post-processors as scoped/per-request, i.e. InstancePerLifetimeScope()
             // - behaviors as transient, i.e. InstancePerDependency()
-                        builder.RegisterAssemblyTypes(typeof(WebApiApplication).GetTypeInfo().Assembly).AsImplementedInterfaces(); // via assembly scan
+            builder.RegisterAssemblyTypes(typeof(WebApiApplication).GetTypeInfo().Assembly).AsImplementedInterfaces(); // via assembly scan
             //builder.RegisterType<MyHandler>().AsImplementedInterfaces().InstancePerDependency();          // or individually
 
 
@@ -130,7 +126,7 @@ namespace Rehborn.AspNetAutoFacExample
         {
             var configuration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log")
+                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log", rollingInterval: RollingInterval.Day)
                 .Enrich.FromLogContext()
                 .Enrich.WithWebApiRouteTemplate()
                 .Enrich.WithWebApiActionName()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using Rehborn.AspNetAutoFacExample.Domain.SeedWork;
 
 namespace Rehborn.AspNetAutoFacExample.Domain

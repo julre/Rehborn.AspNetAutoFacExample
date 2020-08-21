@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using MediatR;
-using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Application.Values.Queries
 {
