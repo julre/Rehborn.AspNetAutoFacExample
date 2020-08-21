@@ -4,7 +4,6 @@ using Rehborn.AspNetAutoFacExample.Domain.SeedWork;
 
 namespace Rehborn.AspNetAutoFacExample.Domain
 {
-    [DataContract]
     public class Value : IAggregateRoot
     {
         public static Value Create(string text)
@@ -18,10 +17,8 @@ namespace Rehborn.AspNetAutoFacExample.Domain
             Text = text;
         }
 
-        [DataMember]
-        public Guid Id { get; set; }
+        public Guid Id { get; }
 
-        [DataMember]
-        public string Text { get; set; }  
+        public string Text { get; }  
     }
 }

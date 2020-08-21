@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
+using Rehborn.AspNetAutoFacExample.Application.Values;
 using Rehborn.AspNetAutoFacExample.Application.Values.Queries;
-using Rehborn.AspNetAutoFacExample.Domain;
 
 namespace Rehborn.AspNetAutoFacExample.Controllers
 {
@@ -17,7 +17,7 @@ namespace Rehborn.AspNetAutoFacExample.Controllers
         }
 
         // GET api/values
-        public async Task<IEnumerable<Value>> Get([FromUri]GetAllValuesQuery request)
+        public async Task<IEnumerable<ValueDto>> Get([FromUri]GetAllValuesQuery request)
         {
             return await _mediator.Send(request);
         }
