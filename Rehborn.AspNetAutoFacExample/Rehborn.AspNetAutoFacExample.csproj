@@ -236,6 +236,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Application\Infrastructure\LoggingBehavior.cs" />
     <Compile Include="Application\Values\Mappings\ValueProfile.cs" />
     <Compile Include="Application\Values\Queries\GetAllValuesHandler.cs" />
     <Compile Include="Application\Values\Queries\GetAllValuesQuery.cs" />
