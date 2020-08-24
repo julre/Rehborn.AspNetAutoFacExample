@@ -13,10 +13,12 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Rehborn.AspNetAutoFacExample.Application.Infrastructure;
 using Rehborn.AspNetAutoFacExample.Domain;
 using Rehborn.AspNetAutoFacExample.Infrastructure;
 using Serilog;
 using Serilog.Core;
+using Serilog.Formatting.Json;
 
 namespace Rehborn.AspNetAutoFacExample
 {
@@ -98,6 +100,7 @@ namespace Rehborn.AspNetAutoFacExample
             // - behaviors as transient, i.e. InstancePerDependency()
             builder.RegisterAssemblyTypes(typeof(WebApiApplication).GetTypeInfo().Assembly).AsImplementedInterfaces(); // via assembly scan
             //builder.RegisterType<MyHandler>().AsImplementedInterfaces().InstancePerDependency();          // or individually
+            builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
 
 
             // Set the dependency resolver to be Autofac.
@@ -126,7 +129,7 @@ namespace Rehborn.AspNetAutoFacExample
         {
             var configuration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File(@"d:\Rehborn.AspNetAutoFacExample.log", rollingInterval: RollingInterval.Day)
+                .WriteTo.File(new JsonFormatter(), @"d:\Rehborn.AspNetAutoFacExample.log", rollingInterval: RollingInterval.Day)
                 .Enrich.FromLogContext()
                 .Enrich.WithWebApiRouteTemplate()
                 .Enrich.WithWebApiActionName()
